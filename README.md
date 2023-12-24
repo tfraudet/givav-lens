@@ -1,5 +1,7 @@
 # 📔 Glider logbook
 
+Simple streamlit application to display various statistics on glider flights
+
 ## Requirements
 
 * Python 3.11
