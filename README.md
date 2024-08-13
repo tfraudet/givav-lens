@@ -1,6 +1,7 @@
 # 📔 Glider logbook
 
-Simple streamlit application to display various statistics on glider flights
+Simple streamlit application to display various statistics on glider flights.
+This application use a csv file containing the flight data extracted from the Givav Smart'Glide website using the cli [givav-scrape](#extracting-flights-data-from-givav-smart-glide-website)
 
 ## Requirements
 
@@ -38,4 +39,34 @@ Then run the app locally:
 
 ```bash
 streamlit run logbook.py
+```
+
+## Extracting flights data from Givav Smart Glide website
+
+To run the givav scraping script, you have to install the ```givav``` package from the source:
+
+```bash
+pip install --editable .
+```
+
+Afterwards, the  ```givav-scrape``` command should be available:
+
+```bash
+# To extract the Givav logbook to a specific file use -o option. If no output file is specified, the result is send to stdout.
+givav-scrape -o my-extract.csv
+
+# You can also pass userid and password as arguments
+givav-scrape --user my-userid --password my-password --output my-extract.csv
+
+# To get the help
+givav-scrape --help
+
+# To get the version
+givav-scrape --version
+```
+
+Eventually, you can run the script directly from the source code.
+
+```bash
+python ./givav/scrape.py --help
 ```

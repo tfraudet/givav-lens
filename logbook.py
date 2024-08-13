@@ -14,8 +14,11 @@ def make_delta(entry):
 @st.cache_data(show_spinner="Fetching data from CSV file...")
 def load_data():
 	#load flights logbook
-	logbook = pd.read_csv('./db/glider-flights-tf-202312.csv', sep = ';', parse_dates = ['Date'], dayfirst=True, dtype=str)
-	logbook.drop(columns=['Durée Compute', 'Année'],  inplace=True)
+	# logbook = pd.read_csv('./db/glider-flights-tf-202312.csv', sep = ';', parse_dates = ['Date'], dayfirst=True, dtype=str)
+	# logbook.drop(columns=['Durée Compute', 'Année'],  inplace=True)
+
+	logbook = pd.read_csv('./db/glider-flights-tf-202408.csv', sep = ';', parse_dates = ['Date'], dayfirst=True, dtype=str)
+
 	logbook['Durée'] = logbook['Durée'].apply(lambda entry: make_delta(entry))
 	return logbook
 
@@ -128,6 +131,14 @@ st.write("#  📔 Welcome to Glider logbook")
 
 # Load the flights logbook data from csv file
 logbook = load_data()
+logbook = logbook.sort_values(by="Date", ascending=True)
+
+# Normalize value for glider type
+logbook['Type'] = logbook['Type'].apply(lambda x: 'LAK19-18M' if x in ('LAK 19', 'LAK 19 18M') else x)
+logbook['Type'] = logbook['Type'].apply(lambda x: 'LS6c-18M' if x in ('LS 6/18M', 'LS 6 18M') else x)
+logbook['Type'] = logbook['Type'].apply(lambda x: 'ALLIANCE-34' if x in ('SNC34C', 'ALLIANCE 34') else x)
+logbook['Type'] = logbook['Type'].apply(lambda x: 'Janus C' if x in ('JANUS C TRAIN RENTRANT', 'JANUS C') else x)
+logbook['Type'] = logbook['Type'].apply(lambda x: 'Marianne' if x in ('C201 MARIANNE', 'MARIANNE') else x)
 
 # Save the data in the session for the other pages
 if 'logbook' not in st.session_state:

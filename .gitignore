@@ -133,3 +133,4 @@ logbooks.ipynb
 spike/
 .DS_store
 db/*.csv
+.vscode/
