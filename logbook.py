@@ -17,7 +17,7 @@ def load_data():
 	# logbook = pd.read_csv('./db/glider-flights-tf-202312.csv', sep = ';', parse_dates = ['Date'], dayfirst=True, dtype=str)
 	# logbook.drop(columns=['Durée Compute', 'Année'],  inplace=True)
 
-	logbook = pd.read_csv('./db/glider-flights-tf-202408.csv', sep = ';', parse_dates = ['Date'], dayfirst=True, dtype=str)
+	logbook = pd.read_csv('./db/glider-flights-tf-202506.csv', sep = ';', parse_dates = ['Date'], dayfirst=True, dtype=str)
 
 	logbook['Durée'] = logbook['Durée'].apply(lambda entry: make_delta(entry))
 	return logbook
@@ -26,9 +26,10 @@ def graphic_type_subplot(df):
 	max_colums = 3
 	max_rows = (len(df['Year'].unique()) // max_colums) if (len(df['Year'].unique()) % max_colums == 0) else (len(df['Year'].unique()) // max_colums) +1 
 
-	fig = make_subplots(rows=max_rows, cols=max_colums, shared_xaxes='all', shared_yaxes='all', subplot_titles=df['Year'].unique().tolist())
+	fig = make_subplots(rows=max_rows, cols=max_colums, shared_xaxes=True, shared_yaxes=True, subplot_titles=df['Year'].unique().tolist())
 	# print(df['Year'].unique().tolist())
 
+	idx = -1  # Fix unbound idx
 	for idx, year in enumerate(df['Year'].unique()):
 		data_year = df.query('Year == {}'.format(year))
 		ccol = (idx % max_colums) + 1
@@ -38,10 +39,10 @@ def graphic_type_subplot(df):
 		fig.update_xaxes(showticklabels=True, tickvals=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],ticktext = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],row=crow, col=ccol )
 		fig.update_yaxes(ticksuffix = 'h00s')
 
-	for i in range(idx+1):
-		fig['layout']['xaxis{}_tickangle'.format(i+1)] = -45
+	fig.update_xaxes(tickangle=-45)  # Set tickangle for all x axes
 	fig.update_layout(height=800, showlegend=False, title_text="<b>Cumulative flight hours by year and month</b>")
 	st.plotly_chart(fig,use_container_width=True)
+
 
 def graphic_type_slider(logbook):
 	# Insert missing months in the cumul of flying hours by year and month. 
@@ -52,14 +53,12 @@ def graphic_type_slider(logbook):
 		existing_months = df_normalize[df_normalize['Year'] == year]['Month'].unique()
 		for month in range(1,13):
 			if month not in existing_months:
-				# print('month {} for year {} is not in the dataframe, add it. months existing are {}'.format(month,year,existing_months))
-				# df_normalize = df_normalize.append({'Year': year, 'Month': month, 'Durée': datetime.timedelta(hours=0, minutes=0)}, ignore_index=True)
 				df_normalize = pd.concat([df_normalize, pd.DataFrame([[year, month, datetime.timedelta(hours=0, minutes=0)]], columns=['Year', 'Month', 'Durée'])], ignore_index=True)
 
 	df_normalize = df_normalize.sort_values(by=['Year','Month'],inplace = False, ascending = [True,True])
 
 	df_normalize['Heures de vol'] = df_normalize['Durée'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes))
-	df_normalize['ISO_Duration']=df_normalize['Durée']/pd.Timedelta("1 hour")
+	df_normalize['ISO_Duration']=df_normalize['Durée'].dt.total_seconds() / 3600  # Convert to hours
 	
 	# Plot the figure with slider to filter years display
 	years = df_normalize['Year'].unique()
@@ -75,29 +74,25 @@ def graphic_type_slider(logbook):
 			name='{}'.format(year),
 			visible= year<=2016,
 			opacity=0.9,
-			# marker=dict(line=dict(width=3, color='gray')),
 			width=[0.6] * 12,
 			offset=offset * (years.tolist().index(year) +1)
 		))
 
 	steps = list()
 	for i in range(len(years)):
-		step = dict(
-			method='restyle',
-			args=[ {"visible": [False] * len(years)}, {"offset": [0] * len(years)}, {"title": "Slider switched to year {} ".format(years[i])}],
-			label='{}'.format(years[i])
-		)
-		step['args'][0]['visible'][i] = True
-		step['args'][1]['offset'][i] = offset
+		visible = [False] * len(years)
+		visible[i] = True
 		# if exist previous year visible also
 		if i>0:
-			step['args'][0]['visible'][i-1] = True
-
+			visible[i-1] = True
 		# if exist next year visible also
 		if i<(len(years)-1):
-			step['args'][0]['visible'][i+1] = True
-			step['args'][1]['offset'][i] = offset*2
-
+			visible[i+1] = True
+		step = dict(
+			method='restyle',
+			args=[{"visible": visible}],
+			label='{}'.format(years[i])
+		)
 		steps.append(step)
 
 	sliders = [dict(
@@ -210,7 +205,7 @@ st.header('Flight hours per year and month',divider=True)
 df = logbook.groupby([logbook['Date'].dt.year.rename('Year'), logbook['Date'].dt.month.rename('Month')])['Durée'].sum()
 df = df.reset_index()
 df['Heures de vol'] = df['Durée'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes))
-df['ISO_Duration']=df['Durée']/pd.Timedelta("1 hour")
+df['ISO_Duration']=df['Durée'].dt.total_seconds() / 3600  # Convert to hours
 
 # Display graphic, based on graphic type option
 if st.session_state['graphic_type'] == 'Subplot':
