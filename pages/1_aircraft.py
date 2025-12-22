@@ -3,7 +3,7 @@ import time
 import pandas
 import numpy as np
 import plotly.express as px
-from sidebar import info_logbook
+from sidebar import info_logbook, footer
 
 st.set_page_config(page_title="Glider logbook - Aircraft", page_icon="📈",layout="wide")
 
@@ -11,6 +11,8 @@ st.set_page_config(page_title="Glider logbook - Aircraft", page_icon="📈",layo
 info_logbook()
 st.sidebar.header("Aircraft")
 st.sidebar.write("Glider flight statistics by aircraft type.")
+
+footer()
 
 # Main page
 st.write("# 📈 Aircraft statistics")
@@ -35,18 +37,18 @@ st.header('Flight hours per aircraft',divider=True)
 fig = px.bar(df, x='Durée de vol', y='Type', orientation='h', text='Heures de vol', hover_data=[] )
 fig.update_traces(textposition='outside', hoverinfo='none')
 fig.update_xaxes(showticklabels=False, title_text='')
-st.plotly_chart(fig,use_container_width=True)
+st.plotly_chart(fig,width='stretch')
 
 # Plot number of flight by aircraft
 st.header('Number of flights per aircraft',divider=True)
 fig = px.bar(df, x='#Nbr de vol', y='Type', orientation='h', text='#Nbr de vol')
 fig.update_traces(marker_color='SpringGreen',textposition='outside', hoverinfo='none')
 fig.update_xaxes(title_text='Flight numbers')
-st.plotly_chart(fig,use_container_width=True)
+st.plotly_chart(fig,width='stretch')
 
 # Display dataframe detail
 st.header('Details hours & number of flights per aircraft',divider=True)
-# st.dataframe(df,hide_index=True,use_container_width=True, 
+# st.dataframe(df,hide_index=True,width='stretch', 
 # 	column_config={'Durée de vol' : None, 
 # 					'#Nbr de vol' : 'Flight number',
 # 					'Type' : '🛩 Aircraft',
@@ -67,3 +69,4 @@ df_html = df.style \
 	.set_table_styles([ headers]) \
 	.to_html()
 st.markdown(df_html, unsafe_allow_html=True)
+

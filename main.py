@@ -1,6 +1,6 @@
 import streamlit as st
 from glider_utils import parse_csv
-from sidebar import info_logbook
+from sidebar import info_logbook,footer
 
 @st.cache_data(show_spinner="Fetching data from CSV file...")
 def upload_data(file_like):
@@ -17,6 +17,7 @@ st.title("📔 Welcome to Glider logbook")
 if 'logbook' not in st.session_state:
 	st.info("After a successful glider logbook upload, the app pages will become available.")
 info_logbook()
+footer()
 
 # upload glider logbook as csv file
 st.subheader("Option#1: Upload your glider logbook CSV file")
@@ -32,7 +33,6 @@ if uploaded_file is not None:
 
 # upload glider logbook from Givav
 st.subheader("Option#2: Connect to Smart'Glide and import your logbook")
-
 
 st.markdown("---")
 # st.info("After a successful upload, the app pages will become available. If you have issues, ensure the CSV follows the project's schema and uses `;` as separator.")

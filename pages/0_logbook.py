@@ -7,7 +7,7 @@ from glider_utils import parse_csv, make_delta
 
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-from sidebar import info_logbook
+from sidebar import info_logbook, footer
 
 def make_delta(entry):
 	h, m = entry.split(':')
@@ -41,7 +41,7 @@ def graphic_type_subplot(df):
 
 	fig.update_xaxes(tickangle=-45)  # Set tickangle for all x axes
 	fig.update_layout(height=800, showlegend=False, title_text="<b>Cumulative flight hours by year and month</b>")
-	st.plotly_chart(fig,use_container_width=True)
+	st.plotly_chart(fig,width='stretch')
 
 
 def graphic_type_slider(logbook):
@@ -104,7 +104,7 @@ def graphic_type_slider(logbook):
 
 	fig.update_layout(barmode='overlay', xaxis_tickangle=-45, height=600, yaxis={ 'tickformat': '%X', 'ticksuffix': 'h00s'}, sliders = sliders )
 	fig.update_xaxes(tickvals=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], ticktext = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
-	st.plotly_chart(fig,use_container_width=True)
+	st.plotly_chart(fig,width='stretch')
 
 st.set_page_config(
 	page_title="Glider logbook",
@@ -114,7 +114,6 @@ st.set_page_config(
 
 # Side bar
 info_logbook()
-
 st.sidebar.header("Logbook")
 st.sidebar.write("Historical trends and statistical analysis of glider flight over time.")
 
@@ -123,6 +122,7 @@ if 'graphic_type' in st.session_state and st.session_state['graphic_type'] == 'S
 	graphic_type_index = 1
 st.session_state['graphic_type']= st.sidebar.radio("Type of graphic available for flight hours per year and month:", ['Subplot', 'Slider'],index=graphic_type_index)
 # st.sidebar.write('The selection is {}'.format(st.session_state['graphic_type']))
+footer()
 
 # Main page
 st.write("#  📔 Welcome to Glider logbook")
@@ -187,11 +187,11 @@ fig.update_layout(title_text="<b>Flight statistics by year.</b>")
 fig.update_xaxes(title_text="Year")
 fig.update_yaxes(title_text="Number of flights", secondary_y=False)
 fig.update_yaxes(title_text="Flight hours", secondary_y=True)
-st.plotly_chart(fig,use_container_width=True)
+st.plotly_chart(fig,width='stretch')
 
 # Display the corresponding dataframe
 st.write('All statistical data ')
-st.dataframe(df_display,hide_index=True, use_container_width=True,
+st.dataframe(df_display,hide_index=True, width='stretch',
 				column_config={
 					'Year': st.column_config.NumberColumn('🗓 Year', format='%d'),
 				}
@@ -214,4 +214,5 @@ else:
 
 # Logbook detail
 st.header('Logbook detail',divider=True)
-st.dataframe(logbook, hide_index=True, use_container_width=True)
+st.dataframe(logbook, hide_index=True, width='stretch')
+

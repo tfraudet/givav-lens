@@ -7,7 +7,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
-from sidebar import info_logbook
+from sidebar import info_logbook,footer
 
 st.set_page_config(page_title="Glider logbook - Fonction", page_icon="📈",layout="wide")
 
@@ -15,6 +15,7 @@ st.set_page_config(page_title="Glider logbook - Fonction", page_icon="📈",layo
 info_logbook()
 st.sidebar.header("Function")
 st.sidebar.write("Glider flight statistics by pilot role.")
+footer()
 
 # Main page
 st.write("# 📈 Function statistics")
@@ -40,7 +41,7 @@ fig = px.bar(df, x='Durée de vol', y='Fonc.', orientation='h', text='Heures de 
 fig.update_traces(textposition='outside', hoverinfo='none')
 fig.update_xaxes(showticklabels=False, title_text='')
 fig.update_yaxes(title_text='Function')
-st.plotly_chart(fig,use_container_width=True)
+st.plotly_chart(fig,width='stretch')
 
 # Plot number of flight by function
 st.header('Number of flights per function',divider=True)
@@ -48,7 +49,7 @@ fig = px.bar(df, x='#Nbr de vol', y='Fonc.', orientation='h', text='#Nbr de vol'
 fig.update_traces(marker_color='SpringGreen',textposition='outside')
 fig.update_xaxes(title_text='Number of flights')
 fig.update_yaxes(title_text='Function')
-st.plotly_chart(fig,use_container_width=True)
+st.plotly_chart(fig,width='stretch')
 
 # Plot most  used instructors
 st.header('Most used instructors',divider=True)
@@ -58,7 +59,7 @@ dfi = dfi.groupby('Commentaire',as_index = True)['Durée'].agg(['sum','count']).
 dfi = dfi.reset_index().rename(columns={"count": "#Nbr de vol", "sum": "Durée de vol", 'Commentaire': 'Instructor'})
 dfi['Heures de vol'] = dfi['Durée de vol'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes))
 
-# st.dataframe(dfi,hide_index=True, use_container_width=True)
+# st.dataframe(dfi,hide_index=True, width='stretch')
 # print(dfi.info())	
 
 # col1, col2 = st.columns([0.6,0.4],gap="small")
@@ -69,7 +70,7 @@ dfi['Heures de vol'] = dfi['Durée de vol'].apply(lambda x: '{}h {}m'.format(x.c
 # 		hovertemplate='<b>%{y}</b><br><br>Number of flight = %{customdata[0]}<br>Flight duration = %{text}'
 # 	)
 # 	fig.update_xaxes(showticklabels=False, title_text='<b>Flight duration</b>')
-# 	st.plotly_chart(fig,use_container_width=True)
+# 	st.plotly_chart(fig,width='stretch')
 
 # with col2:
 # 	fig = px.bar(dfi, x='#Nbr de vol', y='Instructor', orientation='h' , text='#Nbr de vol', hover_name='Instructor',
@@ -77,7 +78,7 @@ dfi['Heures de vol'] = dfi['Durée de vol'].apply(lambda x: '{}h {}m'.format(x.c
 # 	fig.update_traces(marker_color='SpringGreen',textposition='outside')
 # 	fig.update_xaxes(showticklabels=False, title_text='<b>Number of flight</b>')
 # 	fig.update_yaxes(showticklabels=False, title_text='')
-# 	st.plotly_chart(fig,use_container_width=True)
+# 	st.plotly_chart(fig,width='stretch')
 
 # Using plotly subplots
 fig = make_subplots(rows=1, cols=2,column_widths=[0.6, 0.4],
@@ -103,11 +104,11 @@ fig.update_layout(showlegend=False)
 fig.update_yaxes(showticklabels=False, secondary_y=True)
 fig.update_yaxes(title_text='Instructor', secondary_y=False)
 fig.update_xaxes(showticklabels=False)
-st.plotly_chart(fig,use_container_width=True)
+st.plotly_chart(fig,width='stretch')
 
 # Display detail
 st.header('Details hours & number of flights per function',divider=True)
-# st.dataframe(df,hide_index=True, use_container_width=True)
+# st.dataframe(df,hide_index=True, width='stretch',)
 
 # Use pandas styler object and HTML conversion to format the table to display
 headers = {
@@ -121,3 +122,4 @@ df_html = df.style \
 	.set_table_styles([ headers]) \
 	.to_html()
 st.markdown(df_html, unsafe_allow_html=True)
+
