@@ -7,10 +7,17 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
+from sidebar import info_logbook
+
 st.set_page_config(page_title="Glider logbook - Fonction", page_icon="📈",layout="wide")
 
-st.write("# 📈 Function statistics")
+# Side Bar
+info_logbook()
 st.sidebar.header("Function")
+st.sidebar.write("Glider flight statistics by pilot role.")
+
+# Main page
+st.write("# 📈 Function statistics")
 
 if 'logbook' not in st.session_state:
 	st.warning("Please upload a CSV using the 'Upload CSV' page before accessing this page.")

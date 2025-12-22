@@ -3,11 +3,17 @@ import time
 import pandas
 import numpy as np
 import plotly.express as px
+from sidebar import info_logbook
 
 st.set_page_config(page_title="Glider logbook - Aircraft", page_icon="📈",layout="wide")
 
-st.write("# 📈 Aircraft statistics")
+# Side bar
+info_logbook()
 st.sidebar.header("Aircraft")
+st.sidebar.write("Glider flight statistics by aircraft type.")
+
+# Main page
+st.write("# 📈 Aircraft statistics")
 
 if 'logbook' not in st.session_state:
 	st.warning("Please upload a CSV using the 'Upload CSV' page before accessing this page.")

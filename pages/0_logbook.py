@@ -7,6 +7,7 @@ from glider_utils import parse_csv, make_delta
 
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+from sidebar import info_logbook
 
 def make_delta(entry):
 	h, m = entry.split(':')
@@ -112,8 +113,11 @@ st.set_page_config(
 )
 
 # Side bar
+info_logbook()
+
 st.sidebar.header("Logbook")
-st.sidebar.write("This is a logbook of all my glider flights since the begining.")
+st.sidebar.write("Historical trends and statistical analysis of glider flight over time.")
+
 graphic_type_index = 0
 if 'graphic_type' in st.session_state and st.session_state['graphic_type'] == 'Slider':
 	graphic_type_index = 1
@@ -126,14 +130,6 @@ st.write("#  📔 Welcome to Glider logbook")
 # If no logbook in session, require upload first
 if 'logbook' not in st.session_state:
 	st.warning("No logbook loaded. Please upload a CSV using the 'Upload CSV' page from the sidebar before accessing the app.")
-	if st.button("Load sample CSV for development (from db/)"):
-		try:
-			sample = load_data()
-			st.session_state['logbook'] = sample
-			st.success("Sample CSV loaded into session. You can now access the app pages.")
-			st.experimental_rerun()
-		except Exception as e:
-			st.error(f"Failed to load sample CSV: {e}")
 	st.stop()
 
 # Use the session logbook set by the upload page
