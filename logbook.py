@@ -17,7 +17,7 @@ def load_data():
 	# logbook = pd.read_csv('./db/glider-flights-tf-202312.csv', sep = ';', parse_dates = ['Date'], dayfirst=True, dtype=str)
 	# logbook.drop(columns=['Durée Compute', 'Année'],  inplace=True)
 
-	logbook = pd.read_csv('./db/glider-flights-tf-202506.csv', sep = ';', parse_dates = ['Date'], dayfirst=True, dtype=str)
+	logbook = pd.read_csv('./db/glider-flights-tf-202512.csv', sep = ';', parse_dates = ['Date'], dayfirst=True, dtype=str)
 
 	logbook['Durée'] = logbook['Durée'].apply(lambda entry: make_delta(entry))
 	return logbook
@@ -58,7 +58,7 @@ def graphic_type_slider(logbook):
 	df_normalize = df_normalize.sort_values(by=['Year','Month'],inplace = False, ascending = [True,True])
 
 	df_normalize['Heures de vol'] = df_normalize['Durée'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes))
-	df_normalize['ISO_Duration']=df_normalize['Durée'].dt.total_seconds() / 3600  # Convert to hours
+	df_normalize['ISO_Duration']=df_normalize['Durée'].apply(lambda x: x.total_seconds() / 3600)  # Convert to hours
 	
 	# Plot the figure with slider to filter years display
 	years = df_normalize['Year'].unique()
@@ -151,10 +151,10 @@ st.markdown(multi)
 
 # Plot flight statistics by year
 st.header('Flight statistics by year',divider=True)
-df = logbook.groupby([logbook['Date'].dt.year.rename('Year')])['Durée'].describe()
+df = logbook.groupby([pd.to_datetime(logbook['Date']).dt.year.rename('Year')])['Durée'].describe()
 for column in ['mean', 'std', 'min','25%','50%','75%','max']: df[column] = pd.to_timedelta(df[column])
 df['count'] = df['count'].astype('int32')
-df['Total'] = logbook.groupby([logbook['Date'].dt.year.rename('Year')])['Durée'].sum()
+df['Total'] = logbook.groupby([pd.to_datetime(logbook['Date']).dt.year.rename('Year')])['Durée'].sum()
 df = df.reset_index()
 # print(df.info())
 
@@ -202,10 +202,10 @@ st.dataframe(df_display,hide_index=True, use_container_width=True,
 
 # Plot cummulative flight hours, by year and by month
 st.header('Flight hours per year and month',divider=True)
-df = logbook.groupby([logbook['Date'].dt.year.rename('Year'), logbook['Date'].dt.month.rename('Month')])['Durée'].sum()
+df = logbook.groupby([pd.to_datetime(logbook['Date']).dt.year.rename('Year'), pd.to_datetime(logbook['Date']).dt.month.rename('Month')])['Durée'].sum()
 df = df.reset_index()
 df['Heures de vol'] = df['Durée'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes))
-df['ISO_Duration']=df['Durée'].dt.total_seconds() / 3600  # Convert to hours
+df['ISO_Duration']=df['Durée'].apply(lambda x: x.total_seconds() / 3600)  # Convert to hours
 
 # Display graphic, based on graphic type option
 if st.session_state['graphic_type'] == 'Subplot':
