@@ -37,54 +37,37 @@ st.write('\nFor a total of :green[{}] flight in :green[{}] hours and :green[{}] 
 
 # Plot flight hours by function
 st.header('Flight hours per function',divider=True)
-fig = px.bar(df, x='Durée de vol', y='Fonc.', orientation='h', text='Heures de vol', )
+df_hours = df.sort_values(by='Durée de vol', ascending=False)
+fig = px.bar(df_hours, x='Durée de vol', y='Fonc.', orientation='h', text='Heures de vol')
 fig.update_traces(textposition='outside', hoverinfo='none')
 fig.update_xaxes(showticklabels=False, title_text='')
-fig.update_yaxes(title_text='Function')
+fig.update_yaxes(title_text='Function', autorange='reversed')
 st.plotly_chart(fig,width='stretch')
 
 # Plot number of flight by function
 st.header('Number of flights per function',divider=True)
-fig = px.bar(df, x='#Nbr de vol', y='Fonc.', orientation='h', text='#Nbr de vol')
+df_count = df.sort_values(by='#Nbr de vol', ascending=False)
+fig = px.bar(df_count, x='#Nbr de vol', y='Fonc.', orientation='h', text='#Nbr de vol')
 fig.update_traces(marker_color='SpringGreen',textposition='outside')
 fig.update_xaxes(title_text='Number of flights')
-fig.update_yaxes(title_text='Function')
+fig.update_yaxes(title_text='Function', autorange='reversed')
 st.plotly_chart(fig,width='stretch')
 
 # Plot most  used instructors
 st.header('Most used instructors',divider=True)
 dfi = st.session_state.logbook
 dfi = dfi[dfi['Fonc.'] == 'Elv']
-dfi = dfi.groupby('Commentaire',as_index = True)['Durée'].agg(['sum','count']).sort_values(by=['sum'], ascending=True)
+dfi = dfi.groupby('Commentaire',as_index = True)['Durée'].agg(['sum','count']).sort_values(by=['sum'], ascending=False)
 dfi = dfi.reset_index().rename(columns={"count": "#Nbr de vol", "sum": "Durée de vol", 'Commentaire': 'Instructor'})
 dfi['Heures de vol'] = dfi['Durée de vol'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes))
-
-# st.dataframe(dfi,hide_index=True, width='stretch')
-# print(dfi.info())	
-
-# col1, col2 = st.columns([0.6,0.4],gap="small")
-# with col1:
-# 	fig = px.bar(dfi, x='Durée de vol', y='Instructor', orientation='h', text='Heures de vol' , hover_name='Instructor', custom_data=['#Nbr de vol'])
-# 	fig.update_traces(
-# 		texttemplate='duration is %{text}',
-# 		hovertemplate='<b>%{y}</b><br><br>Number of flight = %{customdata[0]}<br>Flight duration = %{text}'
-# 	)
-# 	fig.update_xaxes(showticklabels=False, title_text='<b>Flight duration</b>')
-# 	st.plotly_chart(fig,width='stretch')
-
-# with col2:
-# 	fig = px.bar(dfi, x='#Nbr de vol', y='Instructor', orientation='h' , text='#Nbr de vol', hover_name='Instructor',
-# 			hover_data={'Instructor': False, 'Heures de vol': True, 'Durée de vol': False, '#Nbr de vol': True})
-# 	fig.update_traces(marker_color='SpringGreen',textposition='outside')
-# 	fig.update_xaxes(showticklabels=False, title_text='<b>Number of flight</b>')
-# 	fig.update_yaxes(showticklabels=False, title_text='')
-# 	st.plotly_chart(fig,width='stretch')
 
 # Using plotly subplots
 fig = make_subplots(rows=1, cols=2,column_widths=[0.6, 0.4],
 					horizontal_spacing=0.05, 
 					subplot_titles=("<b>Flight duration</b>", "<b>Number of flight</b>"),
 					specs=[[{"secondary_y": False}, {"secondary_y": True}]])
+
+dfi = dfi.sort_values(by='Durée de vol', ascending=True)
 fig.add_trace(
 	go.Bar(x=dfi['Durée de vol'], y=dfi['Instructor'], customdata=dfi['#Nbr de vol'], name="", orientation='h', 
 		text=dfi['Heures de vol'],
@@ -93,6 +76,8 @@ fig.add_trace(
 	), 
 	row=1, col=1, secondary_y=False,
 )
+
+dfi = dfi.sort_values(by='#Nbr de vol', ascending=True)
 fig.add_trace(
 	go.Bar(x=dfi['#Nbr de vol'], y=dfi['Instructor'], name="",customdata=dfi['Heures de vol'], marker=dict(color='SpringGreen'), orientation='h',
 		text=dfi['#Nbr de vol'] ,textposition='outside',

@@ -28,19 +28,23 @@ df = st.session_state.logbook
 df = df.groupby('Type',as_index = True)['Durée'].agg(['sum','count'])
 df = df.rename(columns={"count": "#Nbr de vol", "sum": "Durée de vol"}).sort_values(by=['Type'], ascending=False)
 df = df.reset_index()
+
 df['Heures de vol'] = df['Durée de vol'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes))
 total_flights_duration = df['Durée de vol'].sum()
 st.write('\nFor a total of :green[{}] flights in :green[{}] hours and :green[{}] minutes'.format(df['#Nbr de vol'].sum(), total_flights_duration.components.days*24 + total_flights_duration.components.hours, total_flights_duration.components.minutes ))
 
 # Plot flight hours by aircraft
 st.header('Flight hours per aircraft',divider=True)
+df = df.sort_values(by='Durée de vol', ascending=True)
 fig = px.bar(df, x='Durée de vol', y='Type', orientation='h', text='Heures de vol', hover_data=[] )
 fig.update_traces(textposition='outside', hoverinfo='none')
 fig.update_xaxes(showticklabels=False, title_text='')
+
 st.plotly_chart(fig,width='stretch')
 
 # Plot number of flight by aircraft
 st.header('Number of flights per aircraft',divider=True)
+df = df.sort_values(by='#Nbr de vol', ascending=True)
 fig = px.bar(df, x='#Nbr de vol', y='Type', orientation='h', text='#Nbr de vol')
 fig.update_traces(marker_color='SpringGreen',textposition='outside', hoverinfo='none')
 fig.update_xaxes(title_text='Flight numbers')
