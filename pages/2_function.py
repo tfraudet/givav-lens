@@ -12,6 +12,10 @@ st.set_page_config(page_title="Glider logbook - Fonction", page_icon="📈",layo
 st.write("# 📈 Function statistics")
 st.sidebar.header("Function")
 
+if 'logbook' not in st.session_state:
+	st.warning("Please upload a CSV using the 'Upload CSV' page before accessing this page.")
+	st.stop()
+
 # read the logbook data from the session state
 df = st.session_state.logbook
 

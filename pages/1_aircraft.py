@@ -9,6 +9,10 @@ st.set_page_config(page_title="Glider logbook - Aircraft", page_icon="📈",layo
 st.write("# 📈 Aircraft statistics")
 st.sidebar.header("Aircraft")
 
+if 'logbook' not in st.session_state:
+	st.warning("Please upload a CSV using the 'Upload CSV' page before accessing this page.")
+	st.stop()
+
 # read the logbook data from the session state
 df = st.session_state.logbook
 

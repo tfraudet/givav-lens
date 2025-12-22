@@ -3,6 +3,7 @@ import pandas as pd
 import datetime
 
 from dateutil.relativedelta import relativedelta
+from glider_utils import parse_csv, make_delta
 
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
@@ -17,10 +18,8 @@ def load_data():
 	# logbook = pd.read_csv('./db/glider-flights-tf-202312.csv', sep = ';', parse_dates = ['Date'], dayfirst=True, dtype=str)
 	# logbook.drop(columns=['Durée Compute', 'Année'],  inplace=True)
 
-	logbook = pd.read_csv('./db/glider-flights-tf-202512.csv', sep = ';', parse_dates = ['Date'], dayfirst=True, dtype=str)
-
-	logbook['Durée'] = logbook['Durée'].apply(lambda entry: make_delta(entry))
-	return logbook
+	# keep a small helper to load a default CSV when explicitly requested
+	return parse_csv('./db/glider-flights-tf-202512.csv')
 
 def graphic_type_subplot(df):
 	max_colums = 3
@@ -124,20 +123,22 @@ st.session_state['graphic_type']= st.sidebar.radio("Type of graphic available fo
 # Main page
 st.write("#  📔 Welcome to Glider logbook")
 
-# Load the flights logbook data from csv file
-logbook = load_data()
-logbook = logbook.sort_values(by="Date", ascending=True)
-
-# Normalize value for glider type
-logbook['Type'] = logbook['Type'].apply(lambda x: 'LAK19-18M' if x in ('LAK 19', 'LAK 19 18M') else x)
-logbook['Type'] = logbook['Type'].apply(lambda x: 'LS6c-18M' if x in ('LS 6/18M', 'LS 6 18M') else x)
-logbook['Type'] = logbook['Type'].apply(lambda x: 'ALLIANCE-34' if x in ('SNC34C', 'ALLIANCE 34') else x)
-logbook['Type'] = logbook['Type'].apply(lambda x: 'Janus C' if x in ('JANUS C TRAIN RENTRANT', 'JANUS C') else x)
-logbook['Type'] = logbook['Type'].apply(lambda x: 'Marianne' if x in ('C201 MARIANNE', 'MARIANNE') else x)
-
-# Save the data in the session for the other pages
+# If no logbook in session, require upload first
 if 'logbook' not in st.session_state:
-	st.session_state['logbook'] = logbook
+	st.warning("No logbook loaded. Please upload a CSV using the 'Upload CSV' page from the sidebar before accessing the app.")
+	if st.button("Load sample CSV for development (from db/)"):
+		try:
+			sample = load_data()
+			st.session_state['logbook'] = sample
+			st.success("Sample CSV loaded into session. You can now access the app pages.")
+			st.experimental_rerun()
+		except Exception as e:
+			st.error(f"Failed to load sample CSV: {e}")
+	st.stop()
+
+# Use the session logbook set by the upload page
+logbook = st.session_state['logbook']
+logbook = logbook.sort_values(by="Date", ascending=True)
 
 # Display global statistic on flight hours
 total_flights_duration = logbook['Durée'].sum()
