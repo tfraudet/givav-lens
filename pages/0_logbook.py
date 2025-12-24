@@ -7,7 +7,7 @@ from glider_utils import parse_csv, make_delta
 
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-from sidebar import info_logbook, footer
+from sidebar import info_logbook, footer, date_range_selector
 
 def make_delta(entry):
 	h, m = entry.split(':')
@@ -117,11 +117,16 @@ info_logbook()
 st.sidebar.header("Logbook")
 st.sidebar.write("Historical trends and statistical analysis of glider flight over time.")
 
-graphic_type_index = 0
-if 'graphic_type' in st.session_state and st.session_state['graphic_type'] == 'Slider':
-	graphic_type_index = 1
-st.session_state['graphic_type']= st.sidebar.radio("Type of graphic available for flight hours per year and month:", ['Subplot', 'Slider'],index=graphic_type_index)
+# Ensure a default exists, then bind the radio widget to the session state key
+if 'graphic_type' not in st.session_state:
+	st.session_state['graphic_type'] = 'Subplot' 
+st.sidebar.radio(
+	"Type of graphic available for flight hours per year and month:",
+	['Subplot', 'Slider'],
+	key='graphic_type'
+)
 # st.sidebar.write('The selection is {}'.format(st.session_state['graphic_type']))
+start_date, end_date = date_range_selector()
 footer()
 
 # Main page
@@ -134,6 +139,16 @@ if 'logbook' not in st.session_state:
 
 # Use the session logbook set by the upload page
 logbook = st.session_state['logbook']
+
+# filter the logbook on start_date and end_date if set
+if start_date and end_date:
+	logbook = logbook[(logbook['Date'] >= start_date) & (logbook['Date'] <= end_date)]
+
+# Logbook empty check
+if logbook.empty:
+	st.warning("The logbook is empty for the selected date range.")
+	st.stop()
+
 logbook = logbook.sort_values(by="Date", ascending=True)
 
 # Display global statistic on flight hours
@@ -148,12 +163,11 @@ st.markdown(multi)
 
 # Plot flight statistics by year
 st.header('Flight statistics by year',divider=True)
-df = logbook.groupby([pd.to_datetime(logbook['Date']).dt.year.rename('Year')])['Durée'].describe()
+df = logbook.groupby([pd.to_datetime(logbook['Date']).dt.year.rename('Year')])['Durée'].describe().fillna(0)
 for column in ['mean', 'std', 'min','25%','50%','75%','max']: df[column] = pd.to_timedelta(df[column])
 df['count'] = df['count'].astype('int32')
 df['Total'] = logbook.groupby([pd.to_datetime(logbook['Date']).dt.year.rename('Year')])['Durée'].sum()
 df = df.reset_index()
-# print(df.info())
 
 df_display = df.copy()
 df_display['max'] = df_display['max'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes))
@@ -166,7 +180,6 @@ df_display['75%'] = df_display['75%'].apply(lambda x: '{}h {}m'.format(x.compone
 df_display['Total'] = df_display['Total'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes))
 
 fig = make_subplots(specs=[[{"secondary_y": True}]])
-
 fig.add_trace(
 	go.Bar(x=df['Year'], y=df['count'], name="Flight number", marker=dict(color='PaleGreen') ), secondary_y=False
 )
@@ -184,13 +197,14 @@ fig.add_trace(
 	secondary_y=True
 )
 fig.update_layout(title_text="<b>Flight statistics by year.</b>")
-fig.update_xaxes(title_text="Year")
+fig.update_xaxes(title_text="Year", type='category')
 fig.update_yaxes(title_text="Number of flights", secondary_y=False)
 fig.update_yaxes(title_text="Flight hours", secondary_y=True)
 st.plotly_chart(fig,width='stretch')
 
 # Display the corresponding dataframe
 st.write('All statistical data ')
+df_display = df_display.sort_values(by='Year', ascending=False)
 st.dataframe(df_display,hide_index=True, width='stretch',
 				column_config={
 					'Year': st.column_config.NumberColumn('🗓 Year', format='%d'),
@@ -215,4 +229,8 @@ else:
 # Logbook detail
 st.header('Logbook detail',divider=True)
 st.dataframe(logbook, hide_index=True, width='stretch')
+
+# Debug
+st.divider()
+st.write(st.session_state)
 

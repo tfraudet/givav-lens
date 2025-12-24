@@ -3,7 +3,7 @@ import time
 import pandas
 import numpy as np
 import plotly.express as px
-from sidebar import info_logbook, footer
+from sidebar import info_logbook, footer, date_range_selector
 
 st.set_page_config(page_title="Glider logbook - Aircraft", page_icon="📈",layout="wide")
 
@@ -11,7 +11,7 @@ st.set_page_config(page_title="Glider logbook - Aircraft", page_icon="📈",layo
 info_logbook()
 st.sidebar.header("Aircraft")
 st.sidebar.write("Glider flight statistics by aircraft type.")
-
+start_date, end_date = date_range_selector()
 footer()
 
 # Main page
@@ -23,6 +23,15 @@ if 'logbook' not in st.session_state:
 
 # read the logbook data from the session state
 df = st.session_state.logbook
+
+# filter the logbook on start_date and end_date if set
+if start_date and end_date:
+	df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
+
+# Logbook empty check
+if df.empty:
+	st.warning("The logbook is empty for the selected date range.")
+	st.stop()
 
 # group data by aircraft
 df = df.groupby('Type',as_index = True)['Durée'].agg(['sum','count'])
@@ -74,3 +83,6 @@ df_html = df.style \
 	.to_html()
 st.markdown(df_html, unsafe_allow_html=True)
 
+# Debug
+st.divider()
+st.write(st.session_state)
