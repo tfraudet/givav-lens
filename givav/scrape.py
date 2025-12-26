@@ -109,7 +109,7 @@ def scrappe_logbook(userid=USERID, pwd=PWD ):
 			if (r.text == 'OK') and (r.status_code == 200):
 				click.echo('Connected to Givav Smart\'Glide website: get logbook...')
 
-				# extrcat the club number from the main web page after logging
+				# extract the club number from the main web page after logging
 				club_number = extract_club_number(session)
 
 				# first year is current year
