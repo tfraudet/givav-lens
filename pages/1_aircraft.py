@@ -15,7 +15,7 @@ start_date, end_date = date_range_selector()
 footer()
 
 # Main page
-st.write("# 📈 Aircraft statistics")
+st.title(":violet[:material/area_chart:] Aircraft statistics over time")
 
 if 'logbook' not in st.session_state:
 	st.warning("Please upload a CSV using the 'Upload CSV' page before accessing this page.")

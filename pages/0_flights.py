@@ -130,7 +130,7 @@ start_date, end_date = date_range_selector()
 footer()
 
 # Main page
-st.write("#  📔 Welcome to Glider logbook")
+st.title(":violet[:material/area_chart:] Flight statistics over time")
 
 # If no logbook in session, require upload first
 if 'logbook' not in st.session_state:

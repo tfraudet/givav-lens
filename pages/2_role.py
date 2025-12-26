@@ -19,7 +19,7 @@ start_date, end_date = date_range_selector()
 footer()
 
 # Main page
-st.write("# 📈 Function statistics")
+st.title(":violet[:material/area_chart:] Role statistics over time")
 
 if 'logbook' not in st.session_state:
 	st.warning("Please upload a CSV using the 'Upload CSV' page before accessing this page.")
@@ -45,22 +45,22 @@ total_flights_duration = df['Durée de vol'].sum()
 
 st.write('\nFor a total of :green[{}] flight in :green[{}] hours and :green[{}] minutes'.format(df['#Nbr de vol'].sum(), total_flights_duration.components.days*24 + total_flights_duration.components.hours, total_flights_duration.components.minutes ))
 
-# Plot flight hours by function
-st.header('Flight hours per function',divider=True)
+# Plot flight hours by role
+st.header('Flight hours per role',divider=True)
 df_hours = df.sort_values(by='Durée de vol', ascending=False)
 fig = px.bar(df_hours, x='Durée de vol', y='Fonc.', orientation='h', text='Heures de vol')
 fig.update_traces(textposition='outside', hoverinfo='none')
 fig.update_xaxes(showticklabels=False, title_text='')
-fig.update_yaxes(title_text='Function', autorange='reversed')
+fig.update_yaxes(title_text='Role', autorange='reversed')
 st.plotly_chart(fig,width='stretch')
 
-# Plot number of flight by function
-st.header('Number of flights per function',divider=True)
+# Plot number of flight by role
+st.header('Number of flights per role',divider=True)
 df_count = df.sort_values(by='#Nbr de vol', ascending=False)
 fig = px.bar(df_count, x='#Nbr de vol', y='Fonc.', orientation='h', text='#Nbr de vol')
 fig.update_traces(marker_color='SpringGreen',textposition='outside')
 fig.update_xaxes(title_text='Number of flights')
-fig.update_yaxes(title_text='Function', autorange='reversed')
+fig.update_yaxes(title_text='Role', autorange='reversed')
 st.plotly_chart(fig,width='stretch')
 
 # Plot most  used instructors
@@ -102,7 +102,7 @@ fig.update_xaxes(showticklabels=False)
 st.plotly_chart(fig,width='stretch')
 
 # Display detail
-st.header('Details hours & number of flights per function',divider=True)
+st.header('Details hours & number of flights per role',divider=True)
 # st.dataframe(df,hide_index=True, width='stretch',)
 
 # Use pandas styler object and HTML conversion to format the table to display
