@@ -9,6 +9,8 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 from sidebar import info_logbook, footer, date_range_selector
 
+st.set_page_config(page_title="Glider logbook - Flights", page_icon="📔",layout="wide")
+
 def make_delta(entry):
 	h, m = entry.split(':')
 	return datetime.timedelta(hours=int(h), minutes=int(m))
@@ -105,12 +107,6 @@ def graphic_type_slider(logbook):
 	fig.update_layout(barmode='overlay', xaxis_tickangle=-45, height=600, yaxis={ 'tickformat': '%X', 'ticksuffix': 'h00s'}, sliders = sliders )
 	fig.update_xaxes(tickvals=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], ticktext = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
 	st.plotly_chart(fig,width='stretch')
-
-st.set_page_config(
-	page_title="Glider logbook",
-	page_icon="📔",
-	layout="wide",
-)
 
 # Side bar
 info_logbook()
@@ -231,6 +227,6 @@ st.header('Logbook detail',divider=True)
 st.dataframe(logbook, hide_index=True, width='stretch')
 
 # Debug
-st.divider()
-st.write(st.session_state)
+# st.divider()
+# st.write(st.session_state)
 

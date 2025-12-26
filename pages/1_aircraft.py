@@ -5,7 +5,7 @@ import numpy as np
 import plotly.express as px
 from sidebar import info_logbook, footer, date_range_selector
 
-st.set_page_config(page_title="Glider logbook - Aircraft", page_icon="📈",layout="wide")
+st.set_page_config(page_title="Glider logbook - Aircraft", page_icon="📔",layout="wide")
 
 # Side bar
 info_logbook()
@@ -84,5 +84,5 @@ df_html = df.style \
 st.markdown(df_html, unsafe_allow_html=True)
 
 # Debug
-st.divider()
-st.write(st.session_state)
+# st.divider()
+# st.write(st.session_state)
