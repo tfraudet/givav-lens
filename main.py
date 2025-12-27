@@ -89,7 +89,8 @@ def ui_givav_sync():
 					update_login_info()
 					givav_synchronize()
 
-					st.rerun(scope='app')
+					if 'logbook' in st.session_state:
+						st.rerun(scope='app')
 				except Exception as e:
 					st.error(f"Failed to connect to Smart'Glide: {e}")
 
