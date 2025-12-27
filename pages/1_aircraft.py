@@ -5,7 +5,7 @@ import numpy as np
 import plotly.express as px
 from sidebar import info_logbook, footer, date_range_selector
 
-st.set_page_config(page_title="Glider logbook - Aircraft", page_icon="📔",layout="wide")
+st.set_page_config(page_title="GivavLens - Aircraft", page_icon="📔",layout="wide")
 
 # Side bar
 info_logbook()

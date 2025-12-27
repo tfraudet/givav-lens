@@ -1,6 +1,8 @@
-# 📔 Glider logbook
+# 📔 GivavLens
 
-Streamlit web application to visualize and analyze personal glider flight statistics. This applicaiton uses logbook imported from Smart'Glide (Givav) website or from a CSV file exported from Smart'Glide using the cli `givav-scrape`.
+Turn your Smart'Glide logbook into visual insights. This streamlit web  application connects to the Givav platform (or accepts `givav-scrape` CSV exports) to track your soaring progress. Visualize your flying history through interactive charts, compare aircraft usage, and analyze your training sessions with specific instructor-level statistics.
+
+![givav-len-screenshot](./img/screenshot.png)
 
 ## Quick overview
 

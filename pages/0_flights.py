@@ -9,7 +9,7 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 from sidebar import info_logbook, footer, date_range_selector
 
-st.set_page_config(page_title="Glider logbook - Flights", page_icon="📔",layout="wide")
+st.set_page_config(page_title="GivavLens - Flights", page_icon="📔",layout="wide")
 
 def make_delta(entry):
 	h, m = entry.split(':')

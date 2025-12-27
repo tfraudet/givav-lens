@@ -95,7 +95,7 @@ def ui_givav_sync():
 					st.error(f"Failed to connect to Smart'Glide: {e}")
 
 st.set_page_config(
-	page_title="Glider logbook",
+	page_title="GivavLens",
 	page_icon="📔",
 	layout="wide",
 )
@@ -105,7 +105,7 @@ st.set_page_config(
 # st.divider()
 
 # Main page
-st.title("📔 Welcome to Glider logbook")
+st.title("📔 Welcome to GivavLens")
 if 'logbook' not in st.session_state:
 	st.info("After a successful glider logbook upload, the app pages will become available.")
 info_logbook()
