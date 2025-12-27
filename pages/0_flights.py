@@ -159,9 +159,14 @@ st.markdown(multi)
 
 # Plot flight statistics by year
 st.header('Flight statistics by year',divider=True)
-df = logbook.groupby([pd.to_datetime(logbook['Date']).dt.year.rename('Year')])['Durée'].describe().fillna(0)
+
+# Compute descriptive stats for durations per year
+# df = logbook.groupby([pd.to_datetime(logbook['Date']).dt.year.rename('Year')])['Durée'].describe().fillna(0)
+
+df = logbook.groupby([pd.to_datetime(logbook['Date']).dt.year.rename('Year')])['Durée'].describe()
 for column in ['mean', 'std', 'min','25%','50%','75%','max']: df[column] = pd.to_timedelta(df[column])
 df['count'] = df['count'].astype('int32')
+df['std'] = df['std'].infer_objects(copy=False).fillna(pd.to_timedelta('0 days 00:00:00'))
 df['Total'] = logbook.groupby([pd.to_datetime(logbook['Date']).dt.year.rename('Year')])['Durée'].sum()
 df = df.reset_index()
 
