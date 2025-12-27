@@ -29,7 +29,3 @@ base="dark"
 # "info", or "debug".
 # Default: "info"
 level = "info"
-
-# Whether to show a vertical separator between the sidebar and the main
-# content area.
-showSidebarBorder = true
