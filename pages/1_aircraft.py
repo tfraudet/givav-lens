@@ -3,40 +3,65 @@ import time
 import pandas
 import numpy as np
 import plotly.express as px
+from sidebar import info_logbook, footer, date_range_selector
 
-st.set_page_config(page_title="Glider logbook - Aircraft", page_icon="📈",layout="wide")
+st.set_page_config(page_title="GivavLens - Aircraft", page_icon="📔",layout="wide")
 
-st.write("# 📈 Aircraft statistics")
+# Side bar
+info_logbook()
 st.sidebar.header("Aircraft")
+st.sidebar.write("Glider flight statistics by aircraft type.")
+start_date, end_date = date_range_selector()
+footer()
+
+# Main page
+st.title(":violet[:material/area_chart:] Aircraft statistics over time")
+
+if 'logbook' not in st.session_state:
+	st.warning("Please upload a CSV using the 'Upload CSV' page before accessing this page.")
+	st.stop()
 
 # read the logbook data from the session state
 df = st.session_state.logbook
+
+# filter the logbook on start_date and end_date if set
+if start_date and end_date:
+	df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
+
+# Logbook empty check
+if df.empty:
+	st.warning("The logbook is empty for the selected date range.")
+	st.stop()
 
 # group data by aircraft
 df = df.groupby('Type',as_index = True)['Durée'].agg(['sum','count'])
 df = df.rename(columns={"count": "#Nbr de vol", "sum": "Durée de vol"}).sort_values(by=['Type'], ascending=False)
 df = df.reset_index()
+
 df['Heures de vol'] = df['Durée de vol'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes))
 total_flights_duration = df['Durée de vol'].sum()
 st.write('\nFor a total of :green[{}] flights in :green[{}] hours and :green[{}] minutes'.format(df['#Nbr de vol'].sum(), total_flights_duration.components.days*24 + total_flights_duration.components.hours, total_flights_duration.components.minutes ))
 
 # Plot flight hours by aircraft
 st.header('Flight hours per aircraft',divider=True)
+df = df.sort_values(by='Durée de vol', ascending=True)
 fig = px.bar(df, x='Durée de vol', y='Type', orientation='h', text='Heures de vol', hover_data=[] )
 fig.update_traces(textposition='outside', hoverinfo='none')
 fig.update_xaxes(showticklabels=False, title_text='')
-st.plotly_chart(fig,use_container_width=True)
+
+st.plotly_chart(fig,width='stretch')
 
 # Plot number of flight by aircraft
 st.header('Number of flights per aircraft',divider=True)
+df = df.sort_values(by='#Nbr de vol', ascending=True)
 fig = px.bar(df, x='#Nbr de vol', y='Type', orientation='h', text='#Nbr de vol')
 fig.update_traces(marker_color='SpringGreen',textposition='outside', hoverinfo='none')
 fig.update_xaxes(title_text='Flight numbers')
-st.plotly_chart(fig,use_container_width=True)
+st.plotly_chart(fig,width='stretch')
 
 # Display dataframe detail
 st.header('Details hours & number of flights per aircraft',divider=True)
-# st.dataframe(df,hide_index=True,use_container_width=True, 
+# st.dataframe(df,hide_index=True,width='stretch', 
 # 	column_config={'Durée de vol' : None, 
 # 					'#Nbr de vol' : 'Flight number',
 # 					'Type' : '🛩 Aircraft',
@@ -57,3 +82,7 @@ df_html = df.style \
 	.set_table_styles([ headers]) \
 	.to_html()
 st.markdown(df_html, unsafe_allow_html=True)
+
+# Debug
+# st.divider()
+# st.write(st.session_state)
