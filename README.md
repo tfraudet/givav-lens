@@ -14,7 +14,7 @@ Streamlit web application to visualize and analyze personal glider flight statis
 - Python 3.11
 - See `requirements.txt` for runtime dependencies (Streamlit, pandas, plotly, beautifulsoup4, requests, click, ...)
 
-## Local setup
+## How to run this app locally with python 3
 
 1. Clone the repository and create a virtual environment:
 
@@ -26,7 +26,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Run the app
+2. Run the app
 
 ```bash
 streamlit run main.py
