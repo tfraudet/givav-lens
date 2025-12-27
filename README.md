@@ -21,8 +21,8 @@ Turn your Smart'Glide logbook into visual insights. This streamlit web  applicat
 1. Clone the repository and create a virtual environment:
 
 ```bash
-git clone https://github.com/youruser/glider-logbook.git
-cd glider-logbook
+git clone https://github.com/tfraudet/givav-lens.git
+cd givav-lens
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
