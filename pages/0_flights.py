@@ -8,22 +8,13 @@ from translations import _, get_language, TRANSLATIONS
 
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-from sidebar import info_logbook, footer, date_range_selector
+from sidebar import info_logbook, footer, date_range_selector, language_selector
 
 st.set_page_config(page_title="GivavLens - Flights", page_icon="📔",layout="wide")
 
 def make_delta(entry):
 	h, m = entry.split(':')
 	return datetime.timedelta(hours=int(h), minutes=int(m))
-
-@st.cache_data(show_spinner="Fetching data from CSV file...")
-def load_data():
-	#load flights logbook
-	# logbook = pd.read_csv('./db/glider-flights-tf-202312.csv', sep = ';', parse_dates = ['Date'], dayfirst=True, dtype=str)
-	# logbook.drop(columns=['Durée Compute', 'Année'],  inplace=True)
-
-	# keep a small helper to load a default CSV when explicitly requested
-	return parse_csv('./db/glider-flights-tf-202512.csv')
 
 def graphic_type_subplot(df):
 	max_colums = 3
@@ -43,7 +34,7 @@ def graphic_type_subplot(df):
 		fig.update_yaxes(ticksuffix = 'h00s')
 
 	fig.update_xaxes(tickangle=-45)  # Set tickangle for all x axes
-	fig.update_layout(height=800, showlegend=False, title_text="<b>Cumulative flight hours by year and month</b>")
+	fig.update_layout(height=800, showlegend=False, title_text="<b>" + _('total_hours_by_year_and_month') + "</b>")
 	st.plotly_chart(fig,width='stretch')
 
 
@@ -124,6 +115,7 @@ st.sidebar.radio(
 )
 # st.sidebar.write('The selection is {}'.format(st.session_state['graphic_type']))
 start_date, end_date = date_range_selector()
+language_selector()
 footer()
 
 # Main page
@@ -131,7 +123,7 @@ st.title(":violet[:material/area_chart:] " + _("flights_title"))
 
 # If no logbook in session, require upload first
 if 'logbook' not in st.session_state:
-	st.warning(_("flights_warning"))
+	st.warning(_("logbook_warning"))
 	st.stop()
 
 # Use the session logbook set by the upload page
@@ -162,7 +154,7 @@ multi = _("total_flights",
 st.markdown(multi)
 
 # Plot flight statistics by year
-st.header(_("statistics_by_year"),divider=True)
+st.header(_("statistics_by_year"),divider="violet")
 
 # Compute descriptive stats for durations per year
 # df = logbook.groupby([pd.to_datetime(logbook['Date']).dt.year.rename('Year')])['Durée'].describe().fillna(0)
@@ -186,29 +178,29 @@ df_display['Total'] = df_display['Total'].apply(lambda x: '{}h {}m'.format(x.com
 
 fig = make_subplots(specs=[[{"secondary_y": True}]])
 fig.add_trace(
-	go.Bar(x=df['Year'], y=df['count'], name="Flight number", marker=dict(color='PaleGreen') ), secondary_y=False
+	go.Bar(x=df['Year'], y=df['count'], name=_("flight_count"), marker=dict(color='PaleGreen') ), secondary_y=False
 )
 fig.add_trace(
-	go.Scatter(x=df['Year'], y=df['Total'], name="Total per year", mode="lines+markers+text",
+	go.Scatter(x=df['Year'], y=df['Total'], name=_("total_per_year"), mode="lines+markers+text",
 			text = df['Total'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes)),
 			textposition='top center', hoverinfo='skip',textfont=dict(color="DodgerBlue"),line= {"color": "DodgerBlue"},
 	),
 	secondary_y=True
 )
 fig.add_trace(
-	go.Scatter(x=df['Year'], y=df['mean'], name='Mean per flight', mode='lines+markers+text', 
+	go.Scatter(x=df['Year'], y=df['mean'], name=_('mean_per_flight'), mode='lines+markers+text', 
 		text = df['mean'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes)),
 		textposition='top center', hoverinfo='skip' ,line= {"color": "Crimson", "width": 1, "dash": 'dash'}, textfont=dict(color="Crimson")),
 	secondary_y=True
 )
-fig.update_layout(title_text="<b>Flight statistics by year.</b>")
+fig.update_layout(title_text="<b>" + _('statistics_by_year') + "</b>")
 fig.update_xaxes(title_text="Year", type='category')
-fig.update_yaxes(title_text="Number of flights", secondary_y=False)
-fig.update_yaxes(title_text="Flight hours", secondary_y=True)
+fig.update_yaxes(title_text=_('flight_count'), secondary_y=False)
+fig.update_yaxes(title_text=_('flight_hours'), secondary_y=True)
 st.plotly_chart(fig,width='stretch')
 
 # Display the corresponding dataframe
-st.write('All statistical data ')
+st.write(_('full_stats'))
 df_display = df_display.sort_values(by='Year', ascending=False)
 st.dataframe(df_display,hide_index=True, width='stretch',
 				column_config={
@@ -217,7 +209,7 @@ st.dataframe(df_display,hide_index=True, width='stretch',
 			 )
 
 # Plot cummulative flight hours, by year and by month
-st.header(_("hours_by_month"),divider=True)
+st.header(_("hours_by_month"),divider="violet")
 df = logbook.groupby([pd.to_datetime(logbook['Date']).dt.year.rename('Year'), pd.to_datetime(logbook['Date']).dt.month.rename('Month')])['Durée'].sum()
 df = df.reset_index()
 df['Heures de vol'] = df['Durée'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes))
@@ -232,7 +224,7 @@ else:
 	st.write('Error: graphic type unknown')
 
 # Logbook detail
-st.header(_("logbook_detail"),divider=True)
+st.header(_("logbook_detail"),divider="violet")
 st.dataframe(logbook, hide_index=True, width='stretch')
 
 # Debug

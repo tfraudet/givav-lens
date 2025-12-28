@@ -7,20 +7,16 @@ __version__ = "1.0.0"
 
 def language_selector():
 	"""Add a language selector in the sidebar."""
-	st.sidebar.subheader("Language / Langue")
-	
-	# Create columns for flag icons
-	col1, col2 = st.sidebar.columns(2)
-	
-	with col1:
-		if st.button("🇺🇸 English", key="lang_en", use_container_width=True):
-			st.session_state.language = "en"
-			st.rerun()
-	
-	with col2:
-		if st.button("🇫🇷 Français", key="lang_fr", use_container_width=True):
-			st.session_state.language = "fr"
-			st.rerun()
+	option_map = {
+		'fr': '🇫🇷 Français',
+		'en': '🇺🇸 English',
+	}
+	selection = st.sidebar.pills(_('language_selectore'), options=option_map.keys(), 
+		# format_func=lambda option: option_map[option], selection_mode="single", default=get_language())
+		format_func=lambda option: option_map[option], selection_mode="single")
+	if selection:
+		st.session_state.language = selection
+		st.rerun()
 
 def info_logbook():
 	if 'logbook' not in st.session_state:
