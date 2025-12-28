@@ -41,7 +41,7 @@ def init_login_info():
 @st.fragment
 def ui_givav_sync():
 	def givav_synchronize():
-		with st.spinner("Wait for it...", show_time=True):
+		with st.spinner(_('wait_for_it'), show_time=True):
 			# with st.container(height=400,border=False):
 			with st.container(border=False):
 				output = st.empty()
@@ -105,14 +105,13 @@ st.set_page_config(
 # st.write(st.session_state)
 # st.divider()
 
-# Language selector
-language_selector()
-
 # Main page
 st.title(_("welcome_title"))
 if 'logbook' not in st.session_state:
 	st.info(_("logbook_info"))
+
 info_logbook()
+language_selector()
 footer()
 
 # Option#1:  upload glider logbook as csv file
