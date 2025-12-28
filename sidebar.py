@@ -1,14 +1,32 @@
 import streamlit as st
 import pandas as pd
 import datetime
+from translations import _, get_language, TRANSLATIONS
 
 __version__ = "1.0.0"
 
+def language_selector():
+	"""Add a language selector in the sidebar."""
+	st.sidebar.subheader("Language / Langue")
+	
+	# Create columns for flag icons
+	col1, col2 = st.sidebar.columns(2)
+	
+	with col1:
+		if st.button("🇺🇸 English", key="lang_en", use_container_width=True):
+			st.session_state.language = "en"
+			st.rerun()
+	
+	with col2:
+		if st.button("🇫🇷 Français", key="lang_fr", use_container_width=True):
+			st.session_state.language = "fr"
+			st.rerun()
+
 def info_logbook():
 	if 'logbook' not in st.session_state:
-		st.sidebar.warning("No glider logbook loaded.")
+		st.sidebar.warning(_("logbook_not_loaded"))
 	else:
-		st.sidebar.success("Logbook loaded with {} flights.".format(len(st.session_state['logbook'])))  
+		st.sidebar.success(_("logbook_loaded", len(st.session_state['logbook'])))  
 
 	# st.sidebar.write(st.session_state)
 
@@ -32,9 +50,9 @@ def date_range_selector():
 		st.session_state['date_range'] = (min_date, max_date)
 	
 	# Create date range selector
-	st.sidebar.subheader("Filters")
+	st.sidebar.subheader(_("filters"))
 	date_range = st.sidebar.date_input(
-		"Select Date Range",
+		_("date_range"),
 		value=st.session_state.date_range,
 		min_value=min_date,
 		max_value=max_date, 

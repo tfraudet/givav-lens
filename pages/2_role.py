@@ -8,21 +8,22 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 from sidebar import info_logbook, footer, date_range_selector
+from translations import _, get_language, TRANSLATIONS
 
 st.set_page_config(page_title="GivavLens - Role", page_icon="📔",layout="wide")
 
 # Side Bar
 info_logbook()
-st.sidebar.header("Role")
-st.sidebar.write("Glider flight statistics by pilot role.")
+st.sidebar.header(_("role_sidebar_header"))
+st.sidebar.write(_("role_sidebar_description"))
 start_date, end_date = date_range_selector()
 footer()
 
 # Main page
-st.title(":violet[:material/area_chart:] Role statistics over time")
+st.title(":violet[:material/area_chart:] " + _("role_title"))
 
 if 'logbook' not in st.session_state:
-	st.warning("Please upload a CSV using the 'Upload CSV' page before accessing this page.")
+	st.warning(_("role_warning"))
 	st.stop()
 
 # read the logbook data from the session state
@@ -34,7 +35,7 @@ if start_date and end_date:
 
 # Logbook empty check
 if df.empty:
-	st.warning("The logbook is empty for the selected date range.")
+	st.warning(_("aircraft_empty_warning"))
 	st.stop()
 
 df = df.groupby('Fonc.',as_index = True)['Durée'].agg(['sum','count'])
@@ -43,10 +44,10 @@ df = df.reset_index()
 df['Heures de vol'] = df['Durée de vol'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes))
 total_flights_duration = df['Durée de vol'].sum()
 
-st.write('\nFor a total of :green[{}] flight in :green[{}] hours and :green[{}] minutes'.format(df['#Nbr de vol'].sum(), total_flights_duration.components.days*24 + total_flights_duration.components.hours, total_flights_duration.components.minutes ))
+st.write(_("role_total", df['#Nbr de vol'].sum(), total_flights_duration.components.days*24 + total_flights_duration.components.hours, total_flights_duration.components.minutes ))
 
 # Plot flight hours by role
-st.header('Flight hours per role',divider=True)
+st.header(_("hours_per_role"),divider=True)
 df_hours = df.sort_values(by='Durée de vol', ascending=False)
 fig = px.bar(df_hours, x='Durée de vol', y='Fonc.', orientation='h', text='Heures de vol')
 fig.update_traces(textposition='outside', hoverinfo='none')
@@ -55,7 +56,7 @@ fig.update_yaxes(title_text='Role', autorange='reversed')
 st.plotly_chart(fig,width='stretch')
 
 # Plot number of flight by role
-st.header('Number of flights per role',divider=True)
+st.header(_("flights_per_role"),divider=True)
 df_count = df.sort_values(by='#Nbr de vol', ascending=False)
 fig = px.bar(df_count, x='#Nbr de vol', y='Fonc.', orientation='h', text='#Nbr de vol')
 fig.update_traces(marker_color='SpringGreen',textposition='outside')
@@ -64,7 +65,7 @@ fig.update_yaxes(title_text='Role', autorange='reversed')
 st.plotly_chart(fig,width='stretch')
 
 # Plot most  used instructors
-st.header('Most used instructors',divider=True)
+st.header(_("instructors_used"),divider=True)
 dfi = st.session_state.logbook
 dfi = dfi[dfi['Fonc.'] == 'Elv']
 dfi = dfi.groupby('Commentaire',as_index = True)['Durée'].agg(['sum','count']).sort_values(by=['sum'], ascending=False)

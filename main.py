@@ -2,7 +2,8 @@ import time
 import streamlit as st
 from givav.scrape import scrappe_logbook
 from glider_utils import parse_csv, to_dataframe
-from sidebar import info_logbook,footer
+from sidebar import info_logbook, footer, language_selector
+from translations import _, get_language, TRANSLATIONS
 
 import requests
 from datetime import datetime
@@ -57,18 +58,18 @@ def ui_givav_sync():
 
 	if st.session_state['givav']:
 		# st.success("Connected to Smart'Glide. Logbook imported successfully.")
-		st.write(f':green[:material/check_circle:] Givav logbook synced for account :blue[{st.session_state.givav_username}]')
+		st.write(_("givav_sync_status_connected", st.session_state.givav_username))
 
-		if st.button(':material/sync: Resync'):
+		if st.button(_("givav_resync_button")):
 			try:
 				givav_synchronize()
 
 				# st.rerun(scope='fragment')
 				st.rerun(scope='app')
 			except Exception as e:
-				st.error(f"Failed to resync from Smart'Glide: {e}")
+				st.error(f"{_('givav_resync_error')}: {e}")
 		
-		if st.button(':material/logout: Disconnect'):
+		if st.button(_("givav_disconnect_button")):
 			st.session_state['givav'] = False
 			if 'logbook' in st.session_state:
 				del st.session_state['logbook']
@@ -76,13 +77,13 @@ def ui_givav_sync():
 			# st.rerun(scope='fragment')
 			st.rerun(scope='app')
 	else:
-		st.write(':red[:material/cancel:] Givav logbook not synced.')  # Empty column for spacing
+		st.write(_("givav_sync_status_disconnected"))  # Empty column for spacing
 
 		with st.form("giva_form_connect"):
-			st.text_input("Smart'Glide Username", key="widget_givav_username")
-			st.text_input("Smart'Glide Password", type="password", key="widget_givav_password")
+			st.text_input(_("givav_username_label"), key="widget_givav_username")
+			st.text_input(_("givav_password_label"), type="password", key="widget_givav_password")
 
-			submitted = st.form_submit_button(':material/login: Connect')
+			submitted = st.form_submit_button(_("givav_connect_button"))
 			# Simulate connection and data fetching
 			if submitted:
 				try:
@@ -92,7 +93,7 @@ def ui_givav_sync():
 					if 'logbook' in st.session_state:
 						st.rerun(scope='app')
 				except Exception as e:
-					st.error(f"Failed to connect to Smart'Glide: {e}")
+					st.error(f"{_('givav_connect_error')}: {e}")
 
 st.set_page_config(
 	page_title="GivavLens",
@@ -104,17 +105,20 @@ st.set_page_config(
 # st.write(st.session_state)
 # st.divider()
 
+# Language selector
+language_selector()
+
 # Main page
-st.title("📔 Welcome to GivavLens")
+st.title(_("welcome_title"))
 if 'logbook' not in st.session_state:
-	st.info("After a successful glider logbook upload, the app pages will become available.")
+	st.info(_("logbook_info"))
 info_logbook()
 footer()
 
 # Option#1:  upload glider logbook as csv file
-st.subheader("Option#1: Upload glider logbook data from CSV file")
+st.subheader(_("upload_subtitle"))
 
-with st.expander(":material/help: CSV Format Help"):
+with st.expander(_("csv_format_help")):
 	st.markdown("""
 ### Expected CSV Format
 The CSV file must be **semicolon-separated** (`;`) with the following columns:
@@ -147,16 +151,16 @@ Date;Immat.;Type;Catégorie;Fonc.;Nat.;Lanc.;Décol.;Durée;Montagne;Lieu;Commen
 ```
 	""")
 
-uploaded_file = st.file_uploader("Upload a glider flights CSV file (semicolon-separated)", type=["csv"])
+uploaded_file = st.file_uploader(_("upload_button_label"), type=["csv"])
 if uploaded_file is not None:
 	try:
 		df = parse_csv(uploaded_file)
 		st.session_state['givav'] = False
 		st.session_state['logbook'] = df
-		st.success("CSV uploaded and parsed successfully. You can now open the other pages.")
+		st.success(_("csv_uploaded_success"))
 	except Exception as e:
-		st.error(f"Failed to parse CSV: {e}")
+		st.error(f"{_('csv_upload_error')}: {e}")
 
 # Option#2: synchronized glider logbook from Givav
-st.subheader("Option#2: Connect to Smart'Glide and import your logbook")
+st.subheader(_("connect_subtitle"))
 ui_givav_sync()

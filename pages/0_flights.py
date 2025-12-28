@@ -4,6 +4,7 @@ import datetime
 
 from dateutil.relativedelta import relativedelta
 from glider_utils import parse_csv, make_delta
+from translations import _, get_language, TRANSLATIONS
 
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
@@ -110,14 +111,14 @@ def graphic_type_slider(logbook):
 
 # Side bar
 info_logbook()
-st.sidebar.header("Flights")
-st.sidebar.write("Historical trends and statistical analysis of glider flight over time.")
+st.sidebar.header(_("flights_sidebar_header"))
+st.sidebar.write(_("flights_sidebar_description"))
 
 # Ensure a default exists, then bind the radio widget to the session state key
 if 'graphic_type' not in st.session_state:
 	st.session_state['graphic_type'] = 'Subplot' 
 st.sidebar.radio(
-	"Type of graphic available for flight hours per year and month:",
+	_("graphic_type_label"),
 	['Subplot', 'Slider'],
 	key='graphic_type'
 )
@@ -126,11 +127,11 @@ start_date, end_date = date_range_selector()
 footer()
 
 # Main page
-st.title(":violet[:material/area_chart:] Flight statistics over time")
+st.title(":violet[:material/area_chart:] " + _("flights_title"))
 
 # If no logbook in session, require upload first
 if 'logbook' not in st.session_state:
-	st.warning("No logbook loaded. Please upload a CSV using the 'Upload CSV' page from the sidebar before accessing the app.")
+	st.warning(_("flights_warning"))
 	st.stop()
 
 # Use the session logbook set by the upload page
@@ -142,7 +143,7 @@ if start_date and end_date:
 
 # Logbook empty check
 if logbook.empty:
-	st.warning("The logbook is empty for the selected date range.")
+	st.warning(_("flights_empty_warning"))
 	st.stop()
 
 logbook = logbook.sort_values(by="Date", ascending=True)
@@ -151,14 +152,17 @@ logbook = logbook.sort_values(by="Date", ascending=True)
 total_flights_duration = logbook['Durée'].sum()
 total_flight_period = relativedelta(logbook.iloc[-1]['Date'], logbook.iloc[0]['Date'])
 
-multi = '''The total number of flight hours is :green[{}] hours and :green[{}] minutes.  
-In :green[{}] flights.  
-Over a period of :green[{}] years, :green[{}] months and :green[{}] day(s).
-'''. format(total_flights_duration.components.days*24 + total_flights_duration.components.hours, total_flights_duration.components.minutes, len(logbook.index),total_flight_period.years,total_flight_period.months,total_flight_period.days)
+multi = _("total_flights", 
+	total_flights_duration.components.days*24 + total_flights_duration.components.hours, 
+	total_flights_duration.components.minutes, 
+	len(logbook.index),
+	total_flight_period.years,
+	total_flight_period.months,
+	total_flight_period.days)
 st.markdown(multi)
 
 # Plot flight statistics by year
-st.header('Flight statistics by year',divider=True)
+st.header(_("statistics_by_year"),divider=True)
 
 # Compute descriptive stats for durations per year
 # df = logbook.groupby([pd.to_datetime(logbook['Date']).dt.year.rename('Year')])['Durée'].describe().fillna(0)
@@ -213,7 +217,7 @@ st.dataframe(df_display,hide_index=True, width='stretch',
 			 )
 
 # Plot cummulative flight hours, by year and by month
-st.header('Flight hours per year and month',divider=True)
+st.header(_("hours_by_month"),divider=True)
 df = logbook.groupby([pd.to_datetime(logbook['Date']).dt.year.rename('Year'), pd.to_datetime(logbook['Date']).dt.month.rename('Month')])['Durée'].sum()
 df = df.reset_index()
 df['Heures de vol'] = df['Durée'].apply(lambda x: '{}h {}m'.format(x.components.days*24 + x.components.hours, x.components.minutes))
@@ -228,7 +232,7 @@ else:
 	st.write('Error: graphic type unknown')
 
 # Logbook detail
-st.header('Logbook detail',divider=True)
+st.header(_("logbook_detail"),divider=True)
 st.dataframe(logbook, hide_index=True, width='stretch')
 
 # Debug
