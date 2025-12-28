@@ -6,7 +6,7 @@ setup(
 	# py_modules=['givav-scrape'],
 	packages=find_packages(),
 	install_requires=[
-		'Click',
+		'click',
 	],
 	entry_points={
 		'console_scripts': [ 'givav-scrape = givav.scrape:cli' ],

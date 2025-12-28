@@ -1,3 +1,4 @@
 plotly==6.5.0
 streamlit==1.52.2
 click==8.3.1
+beautifulsoup4==4.14.3

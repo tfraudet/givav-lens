@@ -13,7 +13,7 @@ st.set_page_config(page_title="GivavLens - Role", page_icon="📔",layout="wide"
 
 # Side Bar
 info_logbook()
-st.sidebar.header("Function")
+st.sidebar.header("Role")
 st.sidebar.write("Glider flight statistics by pilot role.")
 start_date, end_date = date_range_selector()
 footer()

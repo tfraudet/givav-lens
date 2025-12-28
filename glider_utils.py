@@ -29,7 +29,8 @@ def parse_csv(file_like) -> pd.DataFrame:
 	- keep columns as strings, then convert `Durée` to timedelta
 	- apply the same `Type` normalizations used elsewhere in the app
 	"""
-	df = pd.read_csv(file_like, sep=';', parse_dates=['Date'], dayfirst=True, dtype=str)
+	df = pd.read_csv(file_like, sep=';', dtype=str)
+	df['Date'] = pd.to_datetime(df['Date'], format='%d/%m/%Y')
 
 	# Convert duration strings 'HH:MM' into timedeltas
 	df['Durée'] = df['Durée'].apply(lambda entry: make_delta(entry))
