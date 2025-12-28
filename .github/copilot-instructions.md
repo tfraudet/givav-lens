@@ -1,85 +1,100 @@
-# Glider Logbook - AI Coding Instructions
+# Givav-Lens - AI Coding Instructions
 
 ## Project Overview
-A Streamlit web application for analyzing personal glider flight statistics and logging. It combines:
-- **Data source**: CSV files scraped from Givav Smart'Glide website (aviation club logbook system)
-- **Web UI**: Streamlit multi-page app showing flight hours, aircraft usage, and instructor statistics
-- **Data scraper**: Click CLI tool that authenticates and extracts flight data from Givav website
 
-## Key Architecture Patterns
+A Streamlit web application for analyzing personal glider flight statistics and logging. Combines:
 
-### Data Flow
-1. **Scraping**: `givav/scrape.py` uses BeautifulSoup to extract HTML tables from Givav, outputs CSV with `;` delimiter
-2. **Data Loading**: `logbook.py:load_data()` reads CSV (currently hardcoded to `db/glider-flights-tf-202509.csv`)
-3. **Session State**: Main page loads data into `st.session_state['logbook']` for multi-page access
-4. **Visualization**: Pages use Plotly for interactive charts, pandas for aggregations
+- **Data source**: CSV files scraped from Givav Smart'Glide (aviation club logbook system)
+- **Web UI**: Streamlit multi-page dashboard showing flight hours, aircraft usage, and instructor statistics
+- **Data scraper**: Click CLI tool that authenticates to Givav and extracts flight data via BeautifulSoup
 
-### CSV Schema
-CSV files (in `db/` directory) use `;` delimiter with columns:
-- Date, Immat., Type, Catégorie, Fonc., Nat., Lanc., Décol., Durée, Montagne, Lieu, Commentaire, Club, Abréviation, Nom
+## Architecture & Data Flow
 
-Critical: **Durée column is in "HH:MM" format** - must convert to timedelta via `make_delta()` function. Function type (Fonc.) includes: "Elv" (training), others for different pilot roles.
+### Core Workflow
 
-## Development Conventions
+1. **Main entry**: `main.py` renders login form and handles Givav authentication
+2. **Scraping**: `givav/scrape.py` crawls Givav website, extracts flight data as list of dicts
+3. **Data conversion**: `glider_utils.py` transforms raw data into pandas DataFrame with normalized types
+4. **Session state**: Logbook stored in `st.session_state['logbook']` - accessed by all pages
+5. **Visualization**: Sub-pages (`pages/*.py`) read session state, aggregate with pandas, render with Plotly
+
+### CSV Data Schema
+
+Files in `db/` directory use `;` delimiter. Columns:
+- `Date` (DD/MM/YYYY), `Immat.`, `Type`, `Catégorie`, `Fonc.`, `Nat.`, `Lanc.`, `Décol.`, `Durée` (HH:MM), `Montagne`, `Lieu`, `Commentaire`, `Club`, `Abréviation`, `Nom`
+
+**Critical**: `Durée` is always "HH:MM" string → must convert via `make_delta()` to timedelta.
+
+## Key Development Patterns
 
 ### Duration Handling
-- Input: String format "HH:MM" (e.g., "02:45")
-- Transformation: `logbook['Durée'] = logbook['Durée'].apply(lambda entry: make_delta(entry))`
-- Display: Convert to "XhYYm" format: `'{0}h {1}m'.format(x.components.days*24 + x.components.hours, x.components.minutes)`
+
+- **Input**: String "HH:MM" (e.g., "01:45")
+- **Conversion**: `df['Durée'] = df['Durée'].apply(lambda x: make_delta(x))` in `glider_utils.py`
+- **Display**: `'{0}h {1}m'.format(x.components.days*24 + x.components.hours, x.components.minutes)`
+- **Arithmetic**: `x.total_seconds() / 3600` converts to decimal hours for Plotly
 
 ### Aircraft Type Normalization
-Standardize variant names in [logbook.py lines 159-163]:
+
+In [glider_utils.py](../glider_utils.py#L11-L18), map variant names to canonical types:
 ```python
-logbook['Type'] = logbook['Type'].apply(lambda x: 'LAK19-18M' if x in ('LAK 19', 'LAK 19 18M') else x)
+normalizations = {
+    'LAK19-18M': ('LAK 19', 'LAK 19 18M'),
+    'LS6c-18M': ('LS 6/18M', 'LS 6 18M'),
+    # Add new mappings as variants appear in CSV files
+}
 ```
-Add new mappings here when variants appear in new CSV files.
+Ensure both `parse_csv()` and `to_dataframe()` call `normalize_aircraft_types()`.
 
-### Multi-Page Data Sharing
-Pages (`pages/1_aircraft.py`, `pages/2_function.py`) access logbook via `st.session_state['logbook']` - **never reload CSV directly** in pages to maintain consistency.
+### Multi-Page Architecture
 
-### Streamlit Configuration
-- Main page: wide layout, page icon "📔"
-- Sub-pages: wide layout with custom icons
-- Use sidebar sections (`st.sidebar.header()`) for page-specific controls
-- Use session state radio buttons to control rendering (e.g., `st.session_state['graphic_type']`)
+- **Main page** ([main.py](../main.py)): Authentication, CSV upload, Givav sync via `scrappe_logbook()`
+- **Sub-pages** ([pages/0_flights.py](../pages/0_flights.py), [pages/1_aircraft.py](../pages/1_aircraft.py), [pages/2_role.py](../pages/2_role.py)): Always access `st.session_state['logbook']` - never load CSV directly
+- **Sidebar utilities** ([sidebar.py](../sidebar.py)): `info_logbook()` checks session state, `date_range_selector()` provides date filtering
+
+### Givav Scraper Details
+
+- **Entry point**: `givav-scrape` CLI (defined in [setup.py](../setup.py#L11))
+- **Flow**: Login → extract club number via regex → iterate backward through years → parse HTML `<tr>` rows via `surrounded()` predicate
+- **Output**: List of dicts with keys matching CSV columns, ready for `to_dataframe()`
+
+## Running & Debugging
+
+```bash
+# Web app
+streamlit run main.py
+
+# Scraper (interactive)
+givav-scrape  # Prompts for username/password
+
+# Install scraper in development
+pip install --editable .
+```
 
 ## Common Tasks
 
-### Adding New Statistics Pages
-1. Create `pages/X_name.py` (Streamlit auto-discovers these)
-2. Read logbook from session: `df = st.session_state.logbook`
-3. Use pandas `groupby()` + `agg()` for aggregations
-4. Render with Plotly charts, normalize durations for display
+### Add New Statistics Page
 
-### Updating Givav Scraper
-- **Authentication**: `scrappe_logbook()` logs in, extracts club number, then iterates backwards through years
-- **HTML parsing**: Uses `surrounded()` predicate to find flight rows (`<tr>` in `<tbody>`)
-- **CLI interface**: Click decorators define user/password/output options; stdout is default
-- Install via: `pip install --editable .` (entry point: `givav-scrape`)
+1. Create `pages/X_name.py` (Streamlit auto-discovers)
+2. Copy pattern from [pages/1_aircraft.py](../pages/1_aircraft.py#L20-L30):
+   ```python
+   df = st.session_state.logbook
+   df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
+   df = df.groupby('Type')['Durée'].agg(['sum', 'count'])
+   ```
+3. Format display durations with `make_delta()` pattern
+4. Use Plotly charts (see examples in existing pages)
 
-### Working with New CSV Data
-1. Place new file in `db/` (naming: `glider-flights-tf-YYYYMM.csv`)
-2. Update hardcoded path in `load_data()` function
-3. If aircraft names differ, add normalization mappings
-4. Test with `logbooks.ipynb` exploration notebook
+### Load New CSV Data
 
-## Dependencies
-- **Runtime**: streamlit, plotly, pandas, click, beautifulsoup4, requests
-- **Development**: Jupyter (for `logbooks.ipynb` exploration)
-
-## Running Locally
-```bash
-# Web app
-streamlit run logbook.py
-
-# Scraper (interactive)
-givav-scrape
-
-# Or with credentials
-givav-scrape --user USERNAME --password PASSWORD -o export.csv
-```
+1. Place file in `db/` as `glider-flights-tf-YYYYMM.csv`
+2. Update hardcoded path in [pages/0_flights.py](../pages/0_flights.py#L22): `parse_csv('./db/glider-flights-tf-YYYYMM.csv')`
+3. Add aircraft type mappings in [glider_utils.py](../glider_utils.py#L11-L18) if needed
+4. Test in any page - session state ensures consistency
 
 ## Code Quality Notes
-- Duration arithmetic uses pandas timedelta: `x.total_seconds() / 3600` for hours
-- Plotly subplots: `make_subplots(rows, cols, shared_xaxes=True, shared_yaxes=True)` for year-month comparisons
-- Session state pattern prevents data reload on page navigation - critical for multi-page performance
+
+- Plotly subplots use `make_subplots(rows, cols, shared_xaxes=True)` for multi-year comparisons
+- Session state with `@st.cache_data` prevents unnecessary reloads on page navigation
+- Streamlit page config: `layout="wide"`, icon `"📔"` (consistent across all pages)
+- Fragment-based UI updates (see [main.py](../main.py#L43)) isolate re-renders
