@@ -29,7 +29,12 @@ def graphic_type_subplot(df):
 		ccol = (idx % max_colums) + 1
 		crow = (idx // max_colums) + 1
 		# print ('index = {}, year={}, row={}, colum={}'.format(idx, year, crow, ccol))
-		fig.add_trace(go.Bar(name= 'data for {}'.format(year), x=data_year['Month'], y=data_year['ISO_Duration'] ), row=crow, col=ccol)
+		fig.add_trace(go.Bar(name= 'data for {}'.format(year),
+								x=data_year['Month'], y=data_year['ISO_Duration'], 
+								hovertemplate=_('value') + ": %{y}<extra></extra>"
+								# hoverinfo='skip',
+							),
+					 row=crow, col=ccol)
 		fig.update_xaxes(showticklabels=True, tickvals=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],ticktext = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],row=crow, col=ccol )
 		fig.update_yaxes(ticksuffix = 'h00s')
 
@@ -69,6 +74,7 @@ def graphic_type_slider(logbook):
 			visible= year<=2016,
 			opacity=0.9,
 			width=[0.6] * 12,
+			hovertemplate=_('value') + ": %{y}<extra></extra>",
 			offset=offset * (years.tolist().index(year) +1)
 		))
 
@@ -204,7 +210,9 @@ st.write(_('full_stats'))
 df_display = df_display.sort_values(by='Year', ascending=False)
 st.dataframe(df_display,hide_index=True, width='stretch',
 				column_config={
-					'Year': st.column_config.NumberColumn('🗓 Year', format='%d'),
+					'Year': st.column_config.NumberColumn(_('year_column'), format='%d'),
+					'count': st.column_config.NumberColumn(_('count_column')),
+					'mean': st.column_config.TextColumn(_('mean_column')),
 				}
 			 )
 
