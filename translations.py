@@ -48,7 +48,7 @@ TRANSLATIONS = {
 		"total_flights": "The total number of flight hours is :green[{}] hours and :green[{}] minutes.\nFor :green[{}] flights.\nOver a period of :green[{}] years, :green[{}] months and :green[{}] day(s).",
 		"statistics_by_year": "Flight statistics by year",
 		"hours_by_month": "Flight hours per year and month",
-		"logbook_detail": "Logbook detail",
+		"logbook_detail": "Logbook raw data",
 		"flights_sidebar_header": "Flights",
 		"flights_sidebar_description": "Historical trends and statistical analysis of glider flight over time.",
 		"graphic_type_label": "Type of graphic available for flight hours per year and month:",
@@ -84,6 +84,8 @@ TRANSLATIONS = {
 		
 		# Table columns
 		"year_column": "🗓 Year",
+		"count_column": "Count",
+		"mean_column": "Mean",
 		"aircraft_type_column": "🛩 Aircraft type",
 		"flight_duration_column": "Flight duration",
 		"flight_number_column": "Flight number",
@@ -133,7 +135,7 @@ TRANSLATIONS = {
 		"total_flights": "Le nombre total d'heures de vol est :green[{}] heures et :green[{}] minutes. Pour :green[{}] vols.\nSur une période de :green[{}] ans, :green[{}] mois et :green[{}] jour(s).",
 		"statistics_by_year": "Statistiques de vol par année",
 		"hours_by_month": "Heures de vol par année et par mois",
-		"logbook_detail": "Détails du carnet de vol",
+		"logbook_detail": "Données sources du carnet de vol",
 		"flights_sidebar_header": "Vols",
 		"flights_sidebar_description": "Tendances historiques et analyse statistique des vols de planeur au fil du temps.",
 		"graphic_type_label": "Type de graphique disponible pour les heures de vol par année et par mois :",
@@ -169,6 +171,8 @@ TRANSLATIONS = {
 
 		# Table columns
 		"year_column": "🗓 Année",
+		"count_column": "Nombre",
+		"mean_column": "Moyenne",
 		"aircraft_type_column": "🛩 Type d'aéronef",
 		"flight_duration_column": "Durée du vol",
 		"flight_number_column": "Numéro de vol",

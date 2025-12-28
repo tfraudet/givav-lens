@@ -210,7 +210,9 @@ st.write(_('full_stats'))
 df_display = df_display.sort_values(by='Year', ascending=False)
 st.dataframe(df_display,hide_index=True, width='stretch',
 				column_config={
-					'Year': st.column_config.NumberColumn('🗓 Year', format='%d'),
+					'Year': st.column_config.NumberColumn(_('year_column'), format='%d'),
+					'count': st.column_config.NumberColumn(_('count_column')),
+					'mean': st.column_config.TextColumn(_('mean_column')),
 				}
 			 )
 
