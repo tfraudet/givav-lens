@@ -40,6 +40,7 @@ TRANSLATIONS = {
 		# All pages
 		"logbook_warning": "No logbook loaded. Go to the main page to upload or sync your Givav data.",
 		"glider": "Glider",
+		"value": "Value",
 
 		# Flights page
 		"flights_title": "Flight statistics over time",
@@ -124,6 +125,7 @@ TRANSLATIONS = {
 		# All pages
 		"logbook_warning": "Aucun carnet de vol n'est chargé. Rendez-vous sur la page principale pour téléverser ou synchroniser vos données Givav.",
 		"glider": "Planeur",
+		"value": "Valeur",
 
 		# Flights page
 		"flights_title": "Statistiques de vol au fil du temps",
