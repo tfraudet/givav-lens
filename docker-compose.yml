@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  givavlens:
+    build: .
+    image: tfraudet/givav-lens:latest
+    ports:
+      - "8501:8501"
+    # environment:
+    #   - PORT=8501
+    # volumes:
+    #   - ./:/app
+    restart: unless-stopped

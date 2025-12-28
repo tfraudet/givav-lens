@@ -110,7 +110,7 @@ def graphic_type_slider(logbook):
 
 # Side bar
 info_logbook()
-st.sidebar.header("Logbook")
+st.sidebar.header("Flights")
 st.sidebar.write("Historical trends and statistical analysis of glider flight over time.")
 
 # Ensure a default exists, then bind the radio widget to the session state key

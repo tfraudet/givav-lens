@@ -34,6 +34,37 @@ pip install -r requirements.txt
 streamlit run main.py
 ```
 
+## How to run it locally using docker (build image)
+
+- Build the Docker image:
+
+```bash
+# First build the image from dockerfile
+docker build --tag tfraudet/givav-lens:latest .
+
+# Or Using docker compose
+docker compose -f docker-compose.yml up --detach --build
+
+# Or pull the image from docker hub
+docker pull tfraudet/givav-lens:latest
+```
+
+- Run the container exposing Streamlit (8501):
+
+```bash
+docker run --rm -p 8501:8501 tfraudet/givav-lens:latest
+```
+
+- Or use Docker Compose to run the container:
+
+```bash
+# start the container in detached mode
+docker compose -f docker-compose.yml up --detach
+
+# stop the container
+docker compose -f docker-compose.yml down
+```
+
 ## CSV format (expected)
 
 - Semicolon-separated (`;`).
