@@ -3,7 +3,7 @@ import pandas as pd
 import datetime
 from translations import _, get_language, TRANSLATIONS
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 def language_selector():
 	"""Add a language selector in the sidebar."""
