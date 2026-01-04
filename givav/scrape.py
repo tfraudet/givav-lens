@@ -36,6 +36,8 @@ def surrounded(tag):
 
 def scrappe_logbook_byyear(session, year, club_number):
 	logbook_byyear = list()
+	current_year = str(datetime.now().year)
+
 	# get the logbook for the season of the year
 	click.echo(click.style('Year {}'.format(year), fg='blue'))
 
@@ -49,7 +51,7 @@ def scrappe_logbook_byyear(session, year, club_number):
 		rows = soup.find_all(surrounded)
 		click.echo(click.style('  Found {} rows in the HTML table'.format(len(rows)), fg='white'))
 
-		if (len(rows) > 1):
+		if (len(rows) > 1) or ((len(rows) == 1) and (year == current_year)):
 			# Found entries, decode them
 			with click.progressbar(rows, label='  Extract flight data', show_pos=True, show_eta=False, show_percent=False, width=len(rows)) as bar:
 				for row in bar:
